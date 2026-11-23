@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/[...path].ts": {
+      "includeFiles": "../api/src/**",
+      "maxDuration": 30
+    }
+  }
+}
