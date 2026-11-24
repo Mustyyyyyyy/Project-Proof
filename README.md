@@ -70,6 +70,9 @@ Vercel does not provide the PostgreSQL database; configure Neon or another manag
 - PostgreSQL full-text project search plus database-backed professional, category, skill, and project matching.
 - Public profiles, privacy-controlled public email, and a database-backed project creation form.
 - Authenticated profile editor for professional details, public contact privacy, and profile image URLs.
+- Dedicated dashboard project management, saved-project views, and responsive workspace navigation.
+- Public About, How it works, FAQ, and Contact information pages.
+- Starter Privacy, Terms, and Copyright notices; legal drafts require operator and jurisdiction review before launch.
 - API input validation, security headers, CORS, and request rate limits.
 
 Database-backed routes require a configured PostgreSQL connection and applied migrations. Google OAuth, email verification, media uploads, messaging, and the remaining social and moderation features are not implemented yet.
@@ -83,5 +86,12 @@ Database-backed routes require a configured PostgreSQL connection and applied mi
 - `/professionals` — professional directory
 - `/opportunities` — opportunity listings
 - `/search?q=...` — global search
+- `/about` — ProjectProof mission and principles
+- `/how-it-works` — creator and discovery guide
+- `/faq` — common product questions
+- `/contact` — current contact options and support setup note
+- `/privacy`, `/terms`, `/copyright` — starter legal information; Privacy and Terms are drafts for review
 - `/dashboard` — dashboard shell
+- `/dashboard/projects` — manage your projects
+- `/dashboard/saved` — saved projects
 - `/dashboard/profile/edit` — edit your professional profile

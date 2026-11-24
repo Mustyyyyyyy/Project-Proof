@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { Navbar } from "../../../../components/navbar";
 import { apiGet } from "../../../../lib/api";
 
 interface Category {
@@ -40,11 +39,16 @@ export default function NewProjectPage() {
           categoryId: categoryId || undefined,
           visibility: formData.get("visibility"),
           status: formData.get("status"),
+          projectType: formData.get("projectType"),
+          location: formData.get("location") || undefined,
+          coverUrl: formData.get("coverUrl") || undefined,
         }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Project could not be saved.");
-      window.location.assign(`/projects/${encodeURIComponent(result.data.slug)}`);
+      window.location.assign(formData.get("visibility") === "PRIVATE"
+        ? "/dashboard/projects"
+        : `/projects/${encodeURIComponent(result.data.slug)}`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Project could not be saved.");
     } finally {
@@ -53,10 +57,7 @@ export default function NewProjectPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="mx-auto max-w-3xl px-5 py-10">
-        <Link href="/dashboard" className="text-sm text-neutral-500">Dashboard / My projects</Link>
+    <main className="mx-auto max-w-3xl">
         <h1 className="mt-4 text-3xl font-semibold">Add a project</h1>
         <p className="mt-2 text-sm text-neutral-600">Give people a clear view of what you made and why it matters.</p>
         <form onSubmit={submit} className="mt-8 space-y-5 rounded-lg border p-6">
@@ -82,7 +83,18 @@ export default function NewProjectPage() {
                 <option value="COMPLETED">Completed</option><option value="IN_PROGRESS">In progress</option><option value="CONCEPT">Concept</option>
               </select>
             </label>
+            <label className="block text-sm font-semibold">Project type
+              <select name="projectType" defaultValue="Personal" className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal">
+                {["Personal", "Client project", "Academic", "Professional", "Open source", "Collaborative", "Commercial", "Research", "Other"].map((type) => <option key={type} value={type}>{type}</option>)}
+              </select>
+            </label>
           </div>
+          <label className="block text-sm font-semibold">Location
+            <input name="location" maxLength={120} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="Optional" />
+          </label>
+          <label className="block text-sm font-semibold">Cover image URL
+            <input name="coverUrl" type="url" maxLength={2048} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
+          </label>
           <label className="block text-sm font-semibold">Visibility
             <select name="visibility" defaultValue="PUBLIC" className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal">
               <option value="PUBLIC">Public</option><option value="UNLISTED">Unlisted</option><option value="PRIVATE">Private</option>
@@ -90,11 +102,10 @@ export default function NewProjectPage() {
           </label>
           {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex justify-end gap-3">
-            <Link href="/dashboard" className="rounded-md border px-4 py-2.5 text-sm font-semibold">Cancel</Link>
-            <button disabled={loading} className="rounded-md bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{loading ? "Saving..." : "Publish project"}</button>
+            <Link href="/dashboard/projects" className="rounded-md border px-4 py-2.5 text-sm font-semibold">Cancel</Link>
+            <button disabled={loading} className="rounded-md bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{loading ? "Saving..." : "Save project"}</button>
           </div>
         </form>
-      </main>
-    </>
+    </main>
   );
 }

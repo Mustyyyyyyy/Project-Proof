@@ -2,10 +2,37 @@
 
 import Link from "next/link";
 import { Menu, Search, Bell, MessageCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+  || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_URL}/api/v1/auth/me`, {
+      credentials: "include",
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (response.ok) setAuthenticated(true);
+        setSessionChecked(true);
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("Could not check the current session:", error);
+          setSessionChecked(true);
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  if (!sessionChecked || authenticated) return null;
+
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-5 lg:px-8">

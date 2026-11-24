@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { Navbar } from "../../../../components/navbar";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
   || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
@@ -104,10 +103,7 @@ export default function EditProfilePage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="mx-auto max-w-3xl px-5 py-10">
-        <Link href="/dashboard" className="text-sm text-neutral-500">Dashboard / Profile</Link>
+    <main className="mx-auto max-w-3xl">
         <h1 className="mt-4 text-3xl font-semibold">Edit your profile</h1>
         <p className="mt-2 text-sm text-neutral-600">Add the details you want potential collaborators to see.</p>
         {loading ? (
@@ -169,7 +165,6 @@ export default function EditProfilePage() {
             </div>
           </form>
         )}
-      </main>
-    </>
+    </main>
   );
 }

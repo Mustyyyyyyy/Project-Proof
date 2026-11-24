@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import { Prisma } from "@prisma/client";
 import { categoriesRouter } from "./routes/categories.js";
 import { opportunitiesRouter } from "./routes/opportunities.js";
+import { dashboardRouter } from "./routes/dashboard.js";
 import { authRouter } from "./routes/auth.js";
 import { projectsRouter } from "./routes/projects.js";
 import { profilesRouter } from "./routes/profiles.js";
@@ -25,6 +26,7 @@ app.use("/api/v1/projects", projectsRouter);
 app.use("/api/v1/profiles", profilesRouter);
 app.use("/api/v1/search", searchRouter);
 app.use("/api/v1/categories", categoriesRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/opportunities", opportunitiesRouter);
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

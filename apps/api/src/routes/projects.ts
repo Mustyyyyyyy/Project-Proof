@@ -8,13 +8,13 @@ export const projectsRouter = Router();
 const projectInput = z.object({
   title: z.string().trim().min(3).max(120),
   shortDescription: z.string().trim().min(10).max(280),
-  detailedDescription: z.string().max(20_000).optional(),
-  categoryId: z.string().uuid().optional(),
+  detailedDescription: z.string().max(20_000).nullable().optional(),
+  categoryId: z.string().uuid().nullable().optional(),
   projectType: z.string().trim().min(1).max(40).optional(),
   status: z.enum(["COMPLETED", "IN_PROGRESS", "CONCEPT", "ARCHIVED"]).optional(),
   visibility: z.enum(["PUBLIC", "UNLISTED", "PRIVATE"]).optional(),
-  location: z.string().trim().max(120).optional(),
-  coverUrl: z.string().url().max(2048).optional(),
+  location: z.string().trim().max(120).nullable().optional(),
+  coverUrl: z.string().url().max(2048).nullable().optional(),
 });
 
 function slugify(value: string) {
@@ -111,6 +111,57 @@ projectsRouter.get("/mine", requireAuth, async (req: AuthenticatedRequest, res, 
   }
 });
 
+projectsRouter.get("/mine/:id", requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  const parsedId = z.string().uuid().safeParse(req.params.id);
+  if (!parsedId.success || !req.userId) {
+    res.status(parsedId.success ? 401 : 400).json({
+      error: { code: parsedId.success ? "UNAUTHENTICATED" : "VALIDATION_ERROR", message: parsedId.success ? "Sign in to continue." : "Invalid project ID." },
+    });
+    return;
+  }
+  try {
+    const project = await prisma.project.findFirst({
+      where: { id: parsedId.data, creatorId: req.userId, deletedAt: null },
+      include: { category: true },
+    });
+    if (!project) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Project not found." } });
+      return;
+    }
+    res.json({ data: project });
+  } catch (error) {
+    next(error);
+  }
+});
+
+projectsRouter.get("/bookmarks/mine", requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  if (!req.userId) {
+    res.status(401).json({ error: { code: "UNAUTHENTICATED", message: "Sign in to continue." } });
+    return;
+  }
+  try {
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId: req.userId,
+        project: { deletedAt: null, visibility: { in: ["PUBLIC", "UNLISTED"] } },
+      },
+      orderBy: { id: "desc" },
+      include: {
+        project: {
+          include: {
+            category: true,
+            creator: { select: { username: true, profile: true } },
+            _count: { select: { likes: true } },
+          },
+        },
+      },
+    });
+    res.json({ data: bookmarks.map(({ project }) => project) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 projectsRouter.get("/:slug", async (req, res, next) => {
   try {
     const project = await prisma.project.findFirst({
@@ -144,16 +195,21 @@ projectsRouter.put("/:id", requireAuth, async (req: AuthenticatedRequest, res, n
     return;
   }
   try {
-    const result = await prisma.project.updateMany({
+    const existing = await prisma.project.findFirst({
       where: { id: parsedId.data, creatorId: req.userId, deletedAt: null },
-      data: parsed.data,
+      select: { visibility: true },
     });
-    if (!result.count) {
+    if (!existing) {
       res.status(404).json({ error: { code: "NOT_FOUND", message: "Project not found." } });
       return;
     }
-    const data = await prisma.project.findUnique({
+    const updateData = {
+      ...parsed.data,
+      ...(existing.visibility === "PRIVATE" && parsed.data.visibility === "PUBLIC" ? { publishedAt: new Date() } : {}),
+    };
+    const data = await prisma.project.update({
       where: { id: parsedId.data },
+      data: updateData,
       include: { category: true, creator: { select: { username: true, profile: true } } },
     });
     res.json({ data });
