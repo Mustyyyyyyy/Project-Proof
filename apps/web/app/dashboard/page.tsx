@@ -49,6 +49,7 @@ export default async function DashboardPage() {
               <nav className="flex flex-col text-sm">
                 <Link className="rounded-md bg-neutral-100 px-3 py-2.5 font-semibold" href="/dashboard">Overview</Link>
                 <Link className="px-3 py-2.5 text-neutral-600" href={`/profile/${user.username}`}>My public profile</Link>
+                <Link className="px-3 py-2.5 text-neutral-600" href="/dashboard/profile/edit">Edit profile</Link>
                 <Link className="px-3 py-2.5 text-neutral-600" href="/discover">Discover projects</Link>
               </nav>
             </aside>
@@ -64,6 +65,7 @@ export default async function DashboardPage() {
                 <p className="mt-2 text-sm text-neutral-600">Add a project and complete your profile so people can discover your work.</p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link href="/dashboard/projects/new" className="rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white">Add a project</Link>
+                  <Link href="/dashboard/profile/edit" className="rounded-md border px-4 py-2.5 text-sm font-semibold">Edit profile</Link>
                   <Link href={`/profile/${user.username}`} className="rounded-md border px-4 py-2.5 text-sm font-semibold">Preview profile</Link>
                 </div>
               </div>

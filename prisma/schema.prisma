@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Visibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
+}
+
+enum ProjectStatus {
+  COMPLETED
+  IN_PROGRESS
+  CONCEPT
+  ARCHIVED
+}
+
+enum OpportunityType {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+  INTERNSHIP
+  CONTRACT
+  COLLABORATION
+  VOLUNTEER
+  SCHOLARSHIP
+  PROJECT_BASED
+}
+
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  passwordHash    String?
+  username        String         @unique
+  role            Role           @default(USER)
+  emailVerifiedAt DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  profile         Profile?
+  projects        Project[]
+  refreshTokens   RefreshToken[]
+  likes           ProjectLike[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
+}
+
+model Profile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName           String
+  professionalTitle  String?
+  bio                String?
+  avatarUrl          String?
+  coverUrl           String?
+  location           String?
+  country            String?
+  availability       String?
+  website            String?
+  publicEmail        Boolean  @default(false)
+  isVerified         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  icon     String?
+  projects Project[]
+}
+
+model Skill {
+  id       String        @id @default(uuid())
+  name     String        @unique
+  slug     String        @unique
+  projects ProjectSkill[]
+}
+
+model Project {
+  id                  String         @id @default(uuid())
+  slug                String         @unique
+  title               String
+  shortDescription    String
+  detailedDescription String?
+  creatorId           String
+  creator             User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  categoryId          String?
+  category            Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  visibility          Visibility     @default(PUBLIC)
+  status              ProjectStatus  @default(COMPLETED)
+  projectType         String         @default("Personal")
+  location            String?
+  coverUrl            String?
+  viewCount           Int            @default(0)
+  deletedAt           DateTime?
+  publishedAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  skills              ProjectSkill[]
+  likes               ProjectLike[]
+  bookmarks           Bookmark[]
+
+  @@index([visibility, publishedAt])
+  @@index([categoryId])
+  @@index([creatorId, visibility])
+}
+
+model ProjectSkill {
+  projectId String
+  skillId   String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, skillId])
+}
+
+model ProjectLike {
+  id        String  @id @default(uuid())
+  projectId String
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model Bookmark {
+  id        String  @id @default(uuid())
+  projectId String
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model Opportunity {
+  id          String          @id @default(uuid())
+  title       String
+  company     String
+  description String
+  type        OpportunityType
+  location    String?
+  remote      Boolean         @default(false)
+  compensation String?
+  deadline    DateTime?
+  publishedAt DateTime        @default(now())
+
+  @@index([type, publishedAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}

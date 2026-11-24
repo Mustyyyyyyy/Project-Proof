@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+
+# Local environment files. Keep secrets out of Git.
+.env
+.env.*
+!.env.example
+
+*.log
