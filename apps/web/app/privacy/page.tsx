@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <p className="rounded-md border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><strong>Draft for review:</strong> Confirm the legal operator, jurisdiction, hosting and analytics providers, retention periods, and user-rights process before launch. This draft is not legal advice.</p>
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h2 className="text-xl font-semibold">Information used by the service</h2>
-        <p className="mt-3 text-sm leading-6 text-neutral-600">ProjectProof uses account details such as an email address, username, and profile name to provide accounts. Creators may add profile and project details, including images, descriptions, categories, links, and visibility choices. The service also stores account-related actions such as saved projects and likes.</p>
+        <p className="mt-3 text-sm leading-6 text-neutral-600">ProjectProof uses account details such as an email address, username, and profile name to provide accounts. Creators may add profile and project details, including images, descriptions, categories, links, and visibility choices. Images uploaded through the image uploader are sent to Cloudinary for storage when Cloudinary is configured. The service also stores account-related actions such as saved projects and likes.</p>
       </section>
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h2 className="text-xl font-semibold">Authentication and cookies</h2>
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
       </section>
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h2 className="text-xl font-semibold">Details to complete before launch</h2>
-        <p className="mt-3 text-sm leading-6 text-neutral-600">The final policy should identify the service operator and contact channel, explain database and image-storage providers, describe any analytics or logs, set retention and deletion practices, and explain how users can exercise rights available in their location. Those operational details have not been supplied for this project and are intentionally not guessed here.</p>
+        <p className="mt-3 text-sm leading-6 text-neutral-600">The final policy should identify the service operator and contact channel, explain the database and Cloudinary storage arrangements, describe any analytics or logs, set retention and deletion practices, and explain how users can exercise rights available in their location. Confirm applicable Cloudinary terms and data-region settings with the operator; those details are intentionally not guessed here.</p>
       </section>
     </InfoPageLayout>
   );

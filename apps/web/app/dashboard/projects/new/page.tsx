@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { apiGet } from "../../../../lib/api";
+import { CloudinaryImageField } from "../../../../components/cloudinary-image-field";
 
 interface Category {
   id: string;
@@ -13,6 +14,7 @@ export default function NewProjectPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [coverUrl, setCoverUrl] = useState("");
 
   useEffect(() => {
     apiGet<Category[]>("/api/v1/categories")
@@ -92,9 +94,7 @@ export default function NewProjectPage() {
           <label className="block text-sm font-semibold">Location
             <input name="location" maxLength={120} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="Optional" />
           </label>
-          <label className="block text-sm font-semibold">Cover image URL
-            <input name="coverUrl" type="url" maxLength={2048} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
-          </label>
+          <CloudinaryImageField name="coverUrl" label="Cover image URL" purpose="project" value={coverUrl} onChange={setCoverUrl} />
           <label className="block text-sm font-semibold">Visibility
             <select name="visibility" defaultValue="PUBLIC" className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal">
               <option value="PUBLIC">Public</option><option value="UNLISTED">Unlisted</option><option value="PRIVATE">Private</option>

@@ -20,7 +20,7 @@ export default function TermsPage() {
       </section>
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h2 className="text-xl font-semibold">Your content</h2>
-        <p className="mt-3 text-sm leading-6 text-neutral-600">You remain responsible for the content you submit and should only share work you own or have permission to publish. By publishing content, you allow ProjectProof to store and display it as needed to operate the service and show it to the audience allowed by your visibility settings. The exact scope of this permission should be confirmed by the service operator before launch.</p>
+        <p className="mt-3 text-sm leading-6 text-neutral-600">You remain responsible for the content you submit and should only share work you own or have permission to publish. By publishing content, you allow ProjectProof to store and display it as needed to operate the service and show it to the audience allowed by your visibility settings. Uploaded images may be processed and stored by Cloudinary when that integration is enabled. The exact scope of these permissions and third-party processing terms should be confirmed by the service operator before launch.</p>
       </section>
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h2 className="text-xl font-semibold">Visibility and changes</h2>

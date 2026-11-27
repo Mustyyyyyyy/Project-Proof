@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { CloudinaryImageField } from "../../../../../components/cloudinary-image-field";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
   || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
@@ -142,9 +143,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         <label className="block text-sm font-semibold">Location
           <input name="location" maxLength={120} defaultValue={project.location ?? ""} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" />
         </label>
-        <label className="block text-sm font-semibold">Cover image URL
-          <input name="coverUrl" type="url" maxLength={2048} defaultValue={project.coverUrl ?? ""} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
-        </label>
+        <CloudinaryImageField name="coverUrl" label="Cover image URL" purpose="project" value={project.coverUrl ?? ""} onChange={(value) => setProject((current) => current ? { ...current, coverUrl: value } : current)} />
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <div className="flex justify-end gap-3 border-t pt-5">
           <Link href="/dashboard/projects" className="rounded-md border px-4 py-2.5 text-sm font-semibold">Cancel</Link>

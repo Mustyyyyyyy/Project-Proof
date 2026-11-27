@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { GoogleAuthLink } from "../../components/google-auth-link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
 
@@ -44,6 +45,8 @@ export default function RegisterPage() {
           ProjectProof
         </Link>
         <h1 className="mt-8 text-3xl font-semibold">Create your portfolio</h1>
+        <GoogleAuthLink label="Sign up with Google" />
+        <div className="mt-5 flex items-center gap-3 text-xs text-neutral-400"><span className="h-px flex-1 bg-neutral-200" />OR CREATE AN ACCOUNT WITH EMAIL<span className="h-px flex-1 bg-neutral-200" /></div>
         <label className="mt-6 block text-sm font-semibold">Full name
           <input name="fullName" required autoComplete="name" maxLength={100} className="mt-2 h-11 w-full rounded-md border px-3" />
         </label>

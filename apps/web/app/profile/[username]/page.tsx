@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Globe, MapPin, Share2 } from "lucide-react";
+import { BadgeCheck, Globe, MapPin } from "lucide-react";
 import { Navbar } from "../../../components/navbar";
+import { ContactCreatorActions } from "../../../components/contact-creator-actions";
 import { apiGet } from "../../../lib/api";
 
 interface PublicProfile {
@@ -36,7 +37,7 @@ export default async function ProfilePage({
   let profile: PublicProfile | null = null;
   let error = "";
   try {
-    profile = await apiGet<PublicProfile>(`/api/v1/profiles/${encodeURIComponent(username)}`);
+    profile = await apiGet<PublicProfile>(`/api/v1/profiles/${encodeURIComponent(username)}`, undefined, { revalidateSeconds: 30 });
   } catch (reason) {
     error = reason instanceof Error ? reason.message : "Profile could not be loaded.";
   }
@@ -59,23 +60,16 @@ export default async function ProfilePage({
                 ) : (
                   <span className="grid size-24 place-items-center rounded-full border-4 border-white bg-neutral-900 text-2xl font-bold text-white">{profile.fullName.slice(0, 2).toUpperCase()}</span>
                 )}
-                <div className="pb-1">
+                <div className="pb-1 mt-12">
                   <h1 className="flex items-center gap-2 text-3xl font-semibold">
                     {profile.fullName}
                     {profile.isVerified && <BadgeCheck className="text-blue-700" size={21} aria-label="Verified" />}
                   </h1>
-                  <p className="mt-1 text-neutral-600">{profile.professionalTitle} · @{profile.username}</p>
+                  <p className="mt-5 text-neutral-600">{profile.professionalTitle} · @{profile.username}</p>
                   {(profile.location || profile.country) && <p className="mt-2 flex items-center gap-1.5 text-sm text-neutral-500"><MapPin size={15} />{[profile.location, profile.country].filter(Boolean).join(", ")}</p>}
                 </div>
               </div>
-              <div className="flex gap-2 sm:justify-end sm:pb-2">
-                <button className="flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-semibold"><Share2 size={16} /> Share</button>
-                {profile.email ? (
-                  <a href={`mailto:${profile.email}`} className="flex h-10 items-center gap-2 rounded-md bg-blue-700 px-4 text-sm font-semibold text-white">Contact</a>
-                ) : (
-                  <span className="flex h-10 items-center rounded-md bg-neutral-100 px-4 text-sm text-neutral-600">Email contact not public</span>
-                )}
-              </div>
+              <ContactCreatorActions username={profile.username} />
             </section>
             <section className="mt-10 grid gap-8 lg:grid-cols-[1fr_280px]">
               <div>

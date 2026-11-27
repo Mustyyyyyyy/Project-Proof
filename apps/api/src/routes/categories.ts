@@ -9,7 +9,7 @@ categoriesRouter.get("/", async (_req, res, next) => {
       orderBy: { name: "asc" },
       include: {
         _count: {
-          select: { projects: { where: { visibility: "PUBLIC", deletedAt: null } } },
+          select: { projects: { where: { visibility: "PUBLIC", deletedAt: null, creator: { is: { deletedAt: null } } } } },
         },
       },
     });

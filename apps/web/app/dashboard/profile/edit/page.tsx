@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { CloudinaryImageField } from "../../../../components/cloudinary-image-field";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
   || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
@@ -137,13 +138,8 @@ export default function EditProfilePage() {
               <input type="url" maxLength={2048} value={profile.website ?? ""} onChange={(event) => update("website", event.target.value)} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
             </label>
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className="block text-sm font-semibold">Profile image URL
-                <input type="url" maxLength={2048} value={profile.avatarUrl ?? ""} onChange={(event) => update("avatarUrl", event.target.value)} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
-                <span className="mt-1 block text-xs font-normal text-neutral-500">Image uploads will be available when storage is configured.</span>
-              </label>
-              <label className="block text-sm font-semibold">Cover image URL
-                <input type="url" maxLength={2048} value={profile.coverUrl ?? ""} onChange={(event) => update("coverUrl", event.target.value)} className="mt-2 h-11 w-full rounded-md border px-3 font-normal" placeholder="https://" />
-              </label>
+              <CloudinaryImageField label="Profile image URL" purpose="profile" value={profile.avatarUrl ?? ""} onChange={(value) => update("avatarUrl", value)} />
+              <CloudinaryImageField label="Cover image URL" purpose="profile" value={profile.coverUrl ?? ""} onChange={(value) => update("coverUrl", value)} />
             </div>
             <label className="block text-sm font-semibold">Availability
               <select value={profile.availability ?? ""} onChange={(event) => update("availability", event.target.value)} className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal">

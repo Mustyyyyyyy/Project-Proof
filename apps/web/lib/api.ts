@@ -24,22 +24,39 @@ export interface ProjectSummary {
   _count: { likes: number };
 }
 
-interface ApiResponse<T> {
+export interface ApiResult<T> {
   data?: T;
   error?: { message?: string };
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    pages: number;
+  };
 }
 
-export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
+export interface ApiCacheOptions {
+  revalidateSeconds?: number;
+}
+
+export async function apiGetResult<T>(
+  path: string,
+  init?: RequestInit,
+  cacheOptions?: ApiCacheOptions,
+): Promise<ApiResult<T>> {
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { ...init, cache: "no-store" });
+    const fetchOptions = cacheOptions?.revalidateSeconds
+      ? { ...init, next: { revalidate: cacheOptions.revalidateSeconds } }
+      : { ...init, cache: "no-store" as const };
+    response = await fetch(`${API_URL}${path}`, fetchOptions);
   } catch {
     throw new Error("The ProjectProof API is unavailable. Start the API server and try again.");
   }
 
-  let body: ApiResponse<T>;
+  let body: ApiResult<T>;
   try {
-    body = (await response.json()) as ApiResponse<T>;
+    body = (await response.json()) as ApiResult<T>;
   } catch {
     throw new Error("The ProjectProof API returned an invalid response.");
   }
@@ -48,5 +65,14 @@ export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(body.error?.message || `The API request failed (${response.status}).`);
   }
   if (body.data === undefined) throw new Error("The API response did not contain the expected data.");
+  return body;
+}
+
+export async function apiGet<T>(
+  path: string,
+  init?: RequestInit,
+  cacheOptions?: ApiCacheOptions,
+): Promise<T> {
+  const body = await apiGetResult<T>(path, init, cacheOptions);
   return body.data;
 }

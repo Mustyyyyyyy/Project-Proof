@@ -26,7 +26,7 @@ export default async function ProfessionalsPage({
   let professionals: Professional[] = [];
   let error = "";
   try {
-    professionals = await apiGet<Professional[]>(`/api/v1/profiles?${params.toString()}`);
+    professionals = await apiGet<Professional[]>(`/api/v1/profiles?${params.toString()}`, undefined, { revalidateSeconds: 30 });
   } catch (reason) {
     error = reason instanceof Error ? reason.message : "Professionals could not be loaded.";
   }

@@ -57,26 +57,20 @@ export default async function Home() {
   let professionalError = "";
   let categoryError = "";
   let opportunityError = "";
-  try {
-    projects = await apiGet<ProjectSummary[]>("/api/v1/projects?pageSize=3");
-  } catch (reason) {
-    projectError = reason instanceof Error ? reason.message : "Featured projects could not be loaded.";
-  }
-  try {
-    professionals = await apiGet<FeaturedProfessional[]>("/api/v1/profiles?limit=3");
-  } catch (reason) {
-    professionalError = reason instanceof Error ? reason.message : "Professionals could not be loaded.";
-  }
-  try {
-    categories = await apiGet<Category[]>("/api/v1/categories");
-  } catch (reason) {
-    categoryError = reason instanceof Error ? reason.message : "Categories could not be loaded.";
-  }
-  try {
-    opportunities = await apiGet<Opportunity[]>("/api/v1/opportunities?pageSize=3");
-  } catch (reason) {
-    opportunityError = reason instanceof Error ? reason.message : "Opportunities could not be loaded.";
-  }
+  const [projectResult, professionalResult, categoryResult, opportunityResult] = await Promise.allSettled([
+    apiGet<ProjectSummary[]>("/api/v1/projects?pageSize=3", undefined, { revalidateSeconds: 30 }),
+    apiGet<FeaturedProfessional[]>("/api/v1/profiles?limit=3", undefined, { revalidateSeconds: 30 }),
+    apiGet<Category[]>("/api/v1/categories", undefined, { revalidateSeconds: 30 }),
+    apiGet<Opportunity[]>("/api/v1/opportunities?pageSize=3", undefined, { revalidateSeconds: 30 }),
+  ]);
+  if (projectResult.status === "fulfilled") projects = projectResult.value;
+  else projectError = projectResult.reason instanceof Error ? projectResult.reason.message : "Featured projects could not be loaded.";
+  if (professionalResult.status === "fulfilled") professionals = professionalResult.value;
+  else professionalError = professionalResult.reason instanceof Error ? professionalResult.reason.message : "Professionals could not be loaded.";
+  if (categoryResult.status === "fulfilled") categories = categoryResult.value;
+  else categoryError = categoryResult.reason instanceof Error ? categoryResult.reason.message : "Categories could not be loaded.";
+  if (opportunityResult.status === "fulfilled") opportunities = opportunityResult.value;
+  else opportunityError = opportunityResult.reason instanceof Error ? opportunityResult.reason.message : "Opportunities could not be loaded.";
 
   return (
     <>

@@ -10,13 +10,20 @@ import {
   FolderKanban,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
+  Bell,
+  Handshake,
   Plus,
+  ShieldCheck,
   UserRound,
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+  || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
 
 interface NavItem {
   label: string;
@@ -29,6 +36,9 @@ const navigation: NavItem[] = [
   { label: "My projects", href: "/dashboard/projects", icon: FolderKanban },
   { label: "Saved", href: "/dashboard/saved", icon: Bookmark },
   { label: "My profile", href: "/dashboard/profile/edit", icon: UserRound },
+  { label: "Messages", href: "/dashboard/messages", icon: Mail },
+  { label: "Requests", href: "/dashboard/requests", icon: Handshake },
+  { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { label: "Discover", href: "/discover", icon: Compass },
   { label: "Opportunities", href: "/opportunities", icon: BriefcaseBusiness },
 ];
@@ -37,6 +47,9 @@ const pageTitles: Readonly<Record<string, string>> = {
   "/dashboard/projects/new": "Add project",
   "/dashboard/saved": "Saved projects",
   "/dashboard/profile/edit": "Edit profile",
+  "/dashboard/messages": "Messages",
+  "/dashboard/requests": "Hire & collaboration requests",
+  "/dashboard/notifications": "Notifications",
 };
 
 export function DashboardShell({ children }: { children: ReactNode }) {
@@ -45,15 +58,32 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const isOverview = pathname === "/dashboard";
   const pageTitle = pageTitles[pathname]
     || (pathname.endsWith("/edit") ? "Edit project" : pathname.split("/").filter(Boolean).slice(1).map((part) => part.replaceAll("-", " ")).join(" / "));
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_URL}/api/v1/auth/me`, { credentials: "include", signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const result = await response.json();
+        setIsAdmin(result.data?.user?.role === "ADMIN");
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("Could not check administrator access:", error);
+        }
+      });
+    return () => controller.abort();
+  }, []);
 
   async function signOut() {
     setSigningOut(true);
     setSignOutError("");
     try {
-      const response = await fetch("/api/v1/auth/logout", { method: "POST", credentials: "include" });
+      const response = await fetch(`${API_URL}/api/v1/auth/logout`, { method: "POST", credentials: "include" });
       if (!response.ok) throw new Error("Could not sign out. Please try again.");
       router.replace("/");
       router.refresh();
@@ -64,7 +94,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function renderLinks(mobile = false) {
-    return navigation.map(({ label, href, icon: Icon }) => {
+    const items = isAdmin
+      ? [...navigation, { label: "Administration", href: "/admin", icon: ShieldCheck }]
+      : navigation;
+    return items.map(({ label, href, icon: Icon }) => {
       const active = href === "/dashboard"
         ? pathname === href
         : pathname === href || pathname.startsWith(`${href}/`);

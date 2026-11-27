@@ -18,6 +18,7 @@ searchRouter.get("/", async (req, res, next) => {
       prisma.$queryRaw<{ id: string }[]>`
         SELECT p."id"
         FROM "Project" p
+        JOIN "User" u ON u."id" = p."creatorId" AND u."deletedAt" IS NULL
         WHERE p."visibility" = 'PUBLIC'::"Visibility"
           AND p."deletedAt" IS NULL
           AND to_tsvector(
@@ -41,6 +42,7 @@ searchRouter.get("/", async (req, res, next) => {
         where: {
           visibility: "PUBLIC",
           deletedAt: null,
+          creator: { is: { deletedAt: null } },
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { shortDescription: { contains: query, mode: "insensitive" } },
@@ -84,7 +86,7 @@ searchRouter.get("/", async (req, res, next) => {
     ]);
     const rankedProjects = rankedProjectRows.length
       ? await prisma.project.findMany({
-          where: { id: { in: rankedProjectRows.map((row) => row.id) } },
+          where: { id: { in: rankedProjectRows.map((row) => row.id) }, creator: { is: { deletedAt: null } } },
           include: {
             category: true,
             creator: { select: { username: true, profile: true } },

@@ -40,7 +40,7 @@ export default async function OpportunitiesPage({
   let results: Opportunity[] | null = null;
   let error = "";
   try {
-    results = await apiGet<Opportunity[]>(`/api/v1/opportunities${params.size ? `?${params}` : ""}`);
+    results = await apiGet<Opportunity[]>(`/api/v1/opportunities${params.size ? `?${params}` : ""}`, undefined, { revalidateSeconds: 30 });
   } catch (reason) {
     error = reason instanceof Error ? reason.message : "Opportunities could not be loaded.";
   }

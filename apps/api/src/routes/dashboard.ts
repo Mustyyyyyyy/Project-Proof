@@ -16,7 +16,7 @@ dashboardRouter.get("/overview", requireAuth, async (req: AuthenticatedRequest, 
       prisma.project.count({ where: { creatorId: userId, deletedAt: null } }),
       prisma.project.count({ where: { creatorId: userId, visibility: "PUBLIC", deletedAt: null } }),
       prisma.project.count({ where: { creatorId: userId, visibility: "PRIVATE", deletedAt: null } }),
-      prisma.bookmark.count({ where: { userId, project: { deletedAt: null, visibility: { in: ["PUBLIC", "UNLISTED"] } } } }),
+      prisma.bookmark.count({ where: { userId, project: { deletedAt: null, visibility: { in: ["PUBLIC", "UNLISTED"] }, creator: { deletedAt: null } } } }),
       prisma.projectLike.count({ where: { project: { creatorId: userId, deletedAt: null } } }),
       prisma.project.findMany({
         where: { creatorId: userId, deletedAt: null },

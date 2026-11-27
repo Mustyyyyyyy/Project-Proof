@@ -1,13 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { Suspense, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { GoogleAuthLink } from "../../components/google-auth-link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "development" ? "http://localhost:4000" : "");
+const googleErrorMessages: Readonly<Record<string, string>> = {
+  google_not_configured: "Google sign-in is not configured on this server yet.",
+  google_invalid_state: "The Google sign-in request could not be verified. Please try again.",
+  google_cancelled: "Google sign-in was cancelled.",
+  google_auth_failed: "Google sign-in could not be completed. Please try again.",
+  google_email_unverified: "Google must confirm your email address before you can sign in.",
+  account_unavailable: "This account is currently unavailable. Contact the site administrator.",
+  auth_not_configured: "Authentication is not configured on this server.",
+  account_link_conflict: "This Google account could not be linked. Try signing in with your existing method.",
+};
 
-export default function LoginPage() {
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const displayedError = error || googleErrorMessages[searchParams.get("error") ?? ""] || "";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,7 +41,7 @@ export default function LoginPage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Unable to sign in.");
-      window.location.assign("/dashboard");
+      router.replace("/dashboard");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to sign in.");
     } finally {
@@ -42,13 +57,16 @@ export default function LoginPage() {
           ProjectProof
         </Link>
         <h1 className="mt-8 text-3xl font-semibold">Welcome back</h1>
+        <GoogleAuthLink label="Continue with Google" />
+        <div className="mt-5 flex items-center gap-3 text-xs text-neutral-400"><span className="h-px flex-1 bg-neutral-200" />OR SIGN IN WITH EMAIL<span className="h-px flex-1 bg-neutral-200" /></div>
         <label className="mt-6 block text-sm font-semibold">Email
           <input name="email" type="email" required autoComplete="email" className="mt-2 h-11 w-full rounded-md border px-3" />
         </label>
         <label className="mt-4 block text-sm font-semibold">Password
           <input name="password" type="password" required autoComplete="current-password" className="mt-2 h-11 w-full rounded-md border px-3" />
         </label>
-        {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+        <div className="mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-blue-700 hover:underline">Forgot password?</Link></div>
+        {displayedError && <p role="alert" className="mt-4 text-sm text-red-700">{displayedError}</p>}
         <button disabled={loading} className="mt-6 h-11 w-full rounded-md bg-blue-700 text-sm font-semibold text-white disabled:opacity-60">
           {loading ? "Signing in..." : "Sign in"}
         </button>
@@ -57,5 +75,13 @@ export default function LoginPage() {
         </p>
       </form>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-neutral-50" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

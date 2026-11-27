@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, MapPin, MessageCircle } from "lucide-react";
 import { Navbar } from "../../../components/navbar";
 import { ProjectActions } from "../../../components/project-actions";
+import { ProjectReportButton } from "../../../components/project-report-button";
 import { apiGet } from "../../../lib/api";
 
 interface ProjectDetails {
@@ -42,7 +43,7 @@ export default async function ProjectPage({
   let project: ProjectDetails | null = null;
   let error = "";
   try {
-    project = await apiGet<ProjectDetails>(`/api/v1/projects/${encodeURIComponent(slug)}`);
+    project = await apiGet<ProjectDetails>(`/api/v1/projects/${encodeURIComponent(slug)}`, undefined, { revalidateSeconds: 30 });
   } catch (reason) {
     error = reason instanceof Error ? reason.message : "Project could not be loaded.";
   }
@@ -106,6 +107,7 @@ export default async function ProjectPage({
                   <MessageCircle size={17} /> View contact options
                 </Link>
                 <ProjectActions projectId={project.id} initialLikes={project._count.likes} />
+                <ProjectReportButton projectId={project.id} />
               </aside>
             </div>
           </>

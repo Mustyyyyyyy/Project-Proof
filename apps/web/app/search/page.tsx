@@ -30,7 +30,7 @@ export default async function SearchPage({
   let error = "";
   if (query) {
     try {
-      results = await apiGet<SearchResult>(`/api/v1/search?q=${encodeURIComponent(query)}`);
+      results = await apiGet<SearchResult>(`/api/v1/search?q=${encodeURIComponent(query)}`, undefined, { revalidateSeconds: 30 });
     } catch (reason) {
       error = reason instanceof Error ? reason.message : "Search could not be completed.";
     }
